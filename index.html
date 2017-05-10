@@ -86,9 +86,9 @@
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1" v-for="post in posts">
                 
                 <div class="post-preview">
-                    <a href="#" v-html="post">>
-                    </a>
-                    <p class="post-meta">Posted by <a href="#">Rahman</a> on 15 February 2017</p>
+                    <a href="#"></a>
+                    <div v-html="post.content"></div>
+                    <p class="post-meta">Posted by <a href="#">Rahman</a> on {{ parseTime(post.time) }}</p>
                 </div>
                 <hr>
                 <!-- <hr><div class="post-preview">
@@ -200,14 +200,14 @@
 
     <script type="text/javascript" src="https://unpkg.com/marked@0.3.6"></script>
     <script type="text/javascript" src="https://unpkg.com/vue@2.3.2/dist/vue.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/moment@2.18.1/min/moment.min.js"></script>
 
     <script type="text/javascript">
 var instance = new Vue({
   el: '#container',
   data: {
-    post_files: [],
     posts: [],
-    config: null,
+    config: {},
   },
 
   created : function() {
@@ -215,22 +215,32 @@ var instance = new Vue({
 
     this.fetchUrl('config.json', function(xhr) {
       self.config = JSON.parse(xhr.responseText);
+      self.posts = self.config.posts;
+      self.posts.sort(function(a,b){
+          // http://stackoverflow.com/a/10124053/2496217
+          return new Date(b.time) - new Date(a.time);
+      });
       self.fetchPosts();
     });
   },
 
-  computed: {
-  },
+  computed: {},
 
   methods: {
     
     fetchPosts: function () {
       var self = this;
-      this.config.fileLists.forEach(function(item, index) {
-        self.fetchUrl(self.config.postRootFolder + item, function(xhr) {
-          self.posts.unshift(marked(xhr.responseText));
+      
+      this.posts.forEach(function(item, index) {
+        self.fetchUrl(self.config.postRootFolder + item.file, function(xhr) {
+          // Vue's limitation, unable to observe newly added properties. https://vuejs.org/v2/guide/reactivity.html#Change-Detection-Caveats
+          Vue.set(item, 'content', marked(xhr.responseText));
         });
       })
+    },
+
+    parseTime : function(time) {
+        return moment(time).format(this.config.timeFormat);
     },
     
     fetchUrl: function (url, callback) {

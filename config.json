@@ -1,7 +1,14 @@
 {
 	"postRootFolder":"posts/",
-	"fileLists":[
-		"hello_world.md",
-		"belajar_vuejs_membuat_blog_markdown_di_github.md"
+	"timeFormat" : "D MMMM YYYY",
+	"posts":[
+		{
+			"file" : "hello_world.md",
+			"time" : "2017-02-15"
+		},
+		{
+			"file" : "belajar_vuejs_membuat_blog_markdown_di_github.md",
+			"time" : "2017-05-09"
+		}
 	]
 }
