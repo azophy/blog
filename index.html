@@ -32,7 +32,7 @@
 </head>
 
 <body>
-
+<div id="vue_app">
     <!-- Navigation -->
     <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
         <div class="container-fluid">
@@ -42,7 +42,7 @@
                     <span class="sr-only">Toggle navigation</span>
                     Menu <i class="fa fa-bars"></i>
                 </button>
-                <a class="navbar-brand" href="http://azophy.github.io/blog/">Rahman's</a>
+                <router-link class="navbar-brand" to="/">Rahman's</router-link>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -55,7 +55,7 @@
                         <a href="http://azophy.github.io/#about">About</a>
                     </li>
                     <li>
-                        <a href="http://azophy.github.io/blog/">Blog</a>
+                        <router-link to="/">Rahman's</router-link>
                     </li>
                 </ul>
             </div>
@@ -64,42 +64,8 @@
         <!-- /.container -->
     </nav>
 
-    <!-- Page Header -->
-    <!-- Set your background image for this header on the line below. -->
-    <header class="intro-header" style="background-image: url('img/home-header2.jpg')">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                    <div class="site-heading">
-                        <h1>Rahman's Scribbles</h1>
-                        <hr class="small">
-                        <span class="subheading">My writings and thoughts</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <div class="container" id="container">
-        <div class="row">
-            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1" v-for="post in posts">
-                
-                <div class="post-preview">
-                    <a :href="'#'+post.title.id" v-html="post.title.outerHTML"></a>
-                    <div v-html="post.content"></div>
-                    <p class="post-meta">Posted by <a href="#">Rahman</a> on {{ parseTime(post.time) }}</p>
-                </div>
-                <hr>
-                <!-- Pager -->
-                <!-- <ul class="pager">
-                    <li class="next">
-                        <a href="#">Older Posts &rarr;</a>
-                    </li>
-                </ul>  -->
-            </div>
-        </div>
-    </div>
+    <router-view v-bind:posts="posts" v-bind:config="config"></router-view>
+        <!-- <homepage v-bind:posts="posts" v-bind:config="config"></homepage> -->
 
     <hr>
 
@@ -139,6 +105,7 @@
             </div>
         </div>
     </footer>
+</div>
 
     <!-- jQuery -->
     <script src="vendor/jquery/jquery.min.js"></script>
@@ -155,69 +122,215 @@
 
     <script type="text/javascript" src="https://unpkg.com/marked@0.3.6"></script>
     <script type="text/javascript" src="https://unpkg.com/vue@2.3.2/dist/vue.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
     <script type="text/javascript" src="https://unpkg.com/moment@2.18.1/min/moment.min.js"></script>
 
+    <script type="text/x-template" id="home_page_template">
+    <div>
+        <!-- Page Header -->
+        <!-- Set your background image for this header on the line below. -->
+        <header class="intro-header" style="background-image: url('img/home-header2.jpg')">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <div class="site-heading">
+                            <h1>Rahman's Scribbles</h1>
+                            <hr class="small">
+                            <span class="subheading">My writings and thoughts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1" v-for="post in posts">
+                    <div class="post-preview">
+                        <router-link :to="{ name: 'post', params: { title: post.title.id }}">
+                            <h2 class="post-title"> {{ post.title.innerText }} </h2>
+                            <h3 class="post-subtitle"> {{ post.sub_title.innerText }} </h3>    
+                        </router-link>
+                        
+                        <!-- <div v-html="post.content"></div> -->
+                        <p class="post-meta">Posted by <a href="#">Rahman</a> on {{ parseTime(post.time) }}</p>
+                    </div>
+                    <hr>
+                    <!-- Pager -->
+                    <!-- <ul class="pager">
+                        <li class="next">
+                            <a href="#">Older Posts &rarr;</a>
+                        </li>
+                    </ul>  -->
+                </div>
+            </div>
+        </div>
+    </div>
+    </script>
+
+    <script type="text/x-template" id="view_post_template">
+    <div>
+        <div v-if="findPost($route.params.title) != null">
+            <!-- Page Header -->
+            <!-- Set your background image for this header on the line below. -->
+            <header class="intro-header" v-bind:style="{ 'background-image': 'url(' + posts[findPost($route.params.title)].imgUrl + ')' }">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                            <div class="post-heading">
+                                <h1>{{ posts[findPost($route.params.title)].title.innerText }}</h1>
+                                <h2 class="subheading">{{ posts[findPost($route.params.title)].sub_title.innerText }}</h2>
+                                <span class="meta">Posted by <a href="#">Rahman</a> on {{ parseTime(posts[findPost($route.params.title)].time) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Post Content -->
+            <article>
+                <div class="container">
+                    <!-- <button v-on:click="test">refresh</button> -->
+                    <div class="row">
+                        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1" v-html="posts[findPost($route.params.title)].content"></div>
+
+                        
+                    </div>
+                </div>
+            </article>
+        </div>
+        <h1 v-else>Sorry, the page you are looking for could not be found</h1>
+    </div>
+    </script>
+
     <script type="text/javascript">
+function fetchUrl (url, callback) {
+  var xhr = new XMLHttpRequest()
+  var self = this
+  xhr.open('GET', url)
+  xhr.onload = function () {
+    // console.log(xhr.responseText);
+    callback(xhr);
+  }
+  xhr.send()
+}
+
+function fetchConfig(setConfig) {
+    fetchUrl('config.json', function(xhr) {
+      var config = JSON.parse(xhr.responseText);
+
+      // set filename without extension as id
+      for (var i = 0; i< config.posts.length; i++)
+        config.posts[i].id = config.posts[i].file.replace('.md', '');
+
+      // sort by date : http://stackoverflow.com/a/10124053/2496217
+      config.posts.sort(function(a,b){ return new Date(b.time) - new Date(a.time); });
+
+      setConfig(config);
+    });
+}
+
+// find first tag element 
+function getFirstElement(content, tag, callback) {
+    var el = document.createElement( 'html' );
+    el.innerHTML = content;
+    var child = el.getElementsByTagName( tag ); //console.log(h1s[0]);
+    if (child.length)
+        callback(child[0], el)
+}
+
+function fetchPost(post, config) {
+    fetchUrl(config.postRootFolder + post.file, function(xhr) {
+    
+        // Vue's limitation, unable to observe newly added properties. https://vuejs.org/v2/guide/reactivity.html#Change-Detection-Caveats
+        Vue.set(post, 'content', marked(xhr.responseText));
+
+        getFirstElement(post.content, 'h1', function(child, parent) {
+            // set as title
+            Vue.set(post, 'title', child);
+
+            // remove title from content
+            child.parentNode.removeChild(child);
+            post.content = parent.innerHTML; //console.log(el.innerHTML);
+
+            // reset title
+            post.title.id = post.id;
+
+            // get sub_title
+            getFirstElement(post.content, 'h2', function(child2, parent2) {
+                Vue.set(post, 'sub_title', child2);
+                child2.parentNode.removeChild(child2);
+                post.content = parent2.innerHTML;
+            });
+        })
+    });
+}
+
+var home_page = { 
+    template: '#home_page_template',
+    props: ['posts', 'config'],
+
+    methods: {
+        parseTime : function(time) {
+            return moment(time).format(this.config.timeFormat);
+        },
+    }
+
+}
+
+var view_post = { 
+    template: '#view_post_template',
+    props: ['posts', 'config'],
+
+    methods: {
+        findPost: function(title) {
+            for (var i=0; i<this.posts.length; i++) {
+                if (this.posts[i].id == title) return i;
+            }
+            console.log('post titled: "' + title + '" is not found');
+            return null;
+        },
+
+        parseTime : function(time) {
+            return moment(time).format(this.config.timeFormat);
+        },
+    }
+
+}
+
 var instance = new Vue({
-  el: '#container',
+  el: '#vue_app',
   data: {
     posts: [],
     config: {},
   },
 
-  created : function() {
-    var self = this;
+  created: function() {
+        var self = this;
 
-    this.fetchUrl('config.json', function(xhr) {
-      self.config = JSON.parse(xhr.responseText);
-      self.posts = self.config.posts;
-      self.posts.sort(function(a,b){
-          // http://stackoverflow.com/a/10124053/2496217
-          return new Date(b.time) - new Date(a.time);
-      });
-      self.fetchPosts();
-    });
-  },
-
-  computed: {},
-
-  methods: {
-    
-    fetchPosts: function () {
-      var self = this;
-      
-      this.posts.forEach(function(item, index) {
-        self.fetchUrl(self.config.postRootFolder + item.file, function(xhr) {
-          // Vue's limitation, unable to observe newly added properties. https://vuejs.org/v2/guide/reactivity.html#Change-Detection-Caveats
-          Vue.set(item, 'content', marked(xhr.responseText));
-
-          var el = document.createElement( 'html' );
-          el.innerHTML = item.content;
-          var h1s = el.getElementsByTagName( 'h1' ); //console.log(h1s[0]);
-          if (h1s.length) {
-              Vue.set(item, 'title', h1s[0]);
-              h1s[0].parentNode.removeChild(h1s[0]);
-              item.content = el.innerHTML; //console.log(el.innerHTML);
-          }
+        fetchConfig(function(config) {
+          self.config = config;
+          self.posts = config.posts;
+          
+          self.posts.forEach(function(item, index) {
+            fetchPost(item, config);
+          })
         });
-      })
     },
 
-    parseTime : function(time) {
-        return moment(time).format(this.config.timeFormat);
-    },
-    
-    fetchUrl: function (url, callback) {
-      var xhr = new XMLHttpRequest()
-      var self = this
-      xhr.open('GET', url)
-      xhr.onload = function () {
-        // console.log(xhr.responseText);
-        callback(xhr);
-      }
-      xhr.send()
-    }
-  }
+  router: new VueRouter({
+    routes : [
+        { path: '/', component: home_page },
+        { path: '/post/:title', name: 'post', component: view_post },
+      ]
+    }),
+
+  // computed: {},
+
+  /*components : {
+    homepage: home_page,
+  }*/
 })
 </script>
 </html>

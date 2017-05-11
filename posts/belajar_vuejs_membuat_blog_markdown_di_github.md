@@ -1,6 +1,8 @@
 Belajar Vue.js : membuat blog pake markdown di Github
 =====================================================
 
+## Because, why not?
+
 Oke, jadi tulisan ini gue dedikasikan selain untuk mengisi blog gue yang masih kosong, juga untuk memotivasi untuk lebih banyak ngoprek teknologi-teknologi baru yang gue ketinggalan banget sekarang-sekarang ini.
 
 ## Pengantar
